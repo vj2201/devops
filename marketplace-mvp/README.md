@@ -2,6 +2,20 @@
 
 A mobile-first, PWA classifieds marketplace for electronics in Melbourne, built with Next.js 14 and Supabase.
 
+## ⚡ Quick Start
+
+### Run Locally (2 commands)
+```bash
+npm install
+npm run dev
+```
+Visit http://localhost:3000/feed for the Instagram-style feed!
+
+### Deploy to Production (Free)
+See [DEPLOYMENT.md](./DEPLOYMENT.md) - **No containers, no servers, no infrastructure code needed!**
+
+---
+
 ## 🎯 Project Goals
 
 Build a TradeMe-quality marketplace for Australia with:
@@ -13,6 +27,26 @@ Build a TradeMe-quality marketplace for Australia with:
 
 ## 🏗️ Architecture
 
+### Serverless (No Infrastructure Management!)
+
+```
+┌─────────────────────────────────────────┐
+│   NO DOCKER, NO K8S, NO SERVERS! 🎉    │
+└─────────────────────────────────────────┘
+
+Vercel (Frontend)          Supabase (Backend)
+├─ Next.js app            ├─ Postgres DB
+├─ Auto CDN               ├─ Auth service
+├─ Auto SSL               ├─ Storage
+└─ Edge functions         └─ Realtime API
+
+💰 Cost: $0/month (free tiers)
+🚀 Deploy: git push (auto-deploy)
+📈 Scale: Auto-scales to 50K users
+```
+
+**See [INFRASTRUCTURE.md](./INFRASTRUCTURE.md) for why we DON'T use EKS/containers**
+
 ### Tech Stack (100% Free Tier)
 
 - **Frontend**: Next.js 14 (App Router) + React 18 + TypeScript
@@ -22,6 +56,8 @@ Build a TradeMe-quality marketplace for Australia with:
 - **Storage**: Supabase Storage (1GB free)
 - **Hosting**: Vercel (unlimited bandwidth)
 - **Maps**: Mapbox (50K loads/month free)
+
+**Infrastructure code**: None needed! ✅
 
 ### Database Schema
 
