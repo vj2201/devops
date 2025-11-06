@@ -1,0 +1,128 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  phone           String?   @unique
+  name            String?
+  avatar          String?
+  emailVerified   Boolean   @default(false)
+  phoneVerified   Boolean   @default(false)
+  trustScore      Int       @default(100)
+  bio             String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  listings        Listing[]
+  messagesSent    Message[] @relation("SentMessages")
+  messagesReceived Message[] @relation("ReceivedMessages")
+  reviewsGiven    Review[]  @relation("ReviewsGiven")
+  reviewsReceived Review[]  @relation("ReviewsReceived")
+  reports         Report[]
+  devices         Device[]
+
+  @@map("users")
+}
+
+model Device {
+  id            String   @id @default(uuid())
+  userId        String
+  fingerprint   String   @unique
+  userAgent     String?
+  lastSeenAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("devices")
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  sellerId    String
+  title       String
+  description String
+  price       Int      // in cents
+  category    String
+  condition   String   // new, like-new, good, fair, poor
+  images      String[] // Array of Supabase Storage URLs
+  latitude    Float
+  longitude   Float
+  suburb      String
+  city        String   @default("Melbourne")
+  status      String   @default("active") // active, sold, removed, expired
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  reports     Report[]
+
+  @@index([category, status])
+  @@index([sellerId])
+  @@index([createdAt])
+  @@map("listings")
+}
+
+model Message {
+  id          String    @id @default(uuid())
+  listingId   String
+  senderId    String
+  receiverId  String
+  content     String
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([senderId, receiverId])
+  @@map("messages")
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  reviewerId  String
+  revieweeId  String
+  listingId   String?  // Optional reference to the transaction
+  rating      Int      // 1-5
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  reviewer    User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee    User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@index([revieweeId])
+  @@map("reviews")
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  reporterId  String
+  targetType  String   // user, listing, message
+  targetId    String
+  reason      String
+  description String?
+  status      String   @default("pending") // pending, reviewed, actioned, dismissed
+  createdAt   DateTime @default(now())
+  reviewedAt  DateTime?
+
+  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  listing     Listing? @relation(fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
