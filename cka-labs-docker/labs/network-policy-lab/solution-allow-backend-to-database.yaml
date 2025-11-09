@@ -1,0 +1,27 @@
+# Solution: Allow Backend → Database Communication
+#
+# This policy allows backend pods to communicate with the database pod
+# on port 5432 (PostgreSQL port).
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-database
+  namespace: secure-app
+spec:
+  # Apply this policy to database pods
+  podSelector:
+    matchLabels:
+      tier: database
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow traffic from backend pods only
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    # Only on port 5432
+    ports:
+    - protocol: TCP
+      port: 5432

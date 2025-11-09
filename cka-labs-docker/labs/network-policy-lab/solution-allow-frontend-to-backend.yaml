@@ -1,0 +1,27 @@
+# Solution: Allow Frontend → Backend Communication
+#
+# This policy allows frontend pods to communicate with backend pods
+# on port 8080 (the backend API port).
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: secure-app
+spec:
+  # Apply this policy to backend pods
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow traffic from frontend pods
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: frontend
+    # Only on port 8080
+    ports:
+    - protocol: TCP
+      port: 8080

@@ -1,0 +1,31 @@
+# Solution: Allow DNS Traffic
+#
+# This policy allows all pods to communicate with CoreDNS
+# for name resolution (DNS lookups).
+#
+# Without this, pods cannot resolve service names!
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: secure-app
+spec:
+  # Apply to all pods
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS queries to kube-system namespace (CoreDNS)
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Also allow egress within same namespace for pod-to-pod communication
+  - to:
+    - podSelector: {}

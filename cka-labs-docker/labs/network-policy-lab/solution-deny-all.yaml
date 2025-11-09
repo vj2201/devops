@@ -1,0 +1,19 @@
+# Solution: Default Deny All Ingress Traffic
+#
+# This policy applies to ALL pods in the secure-app namespace
+# and denies all incoming traffic by default.
+#
+# Important: Once applied, you must create explicit allow policies
+# for any traffic you want to permit.
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: secure-app
+spec:
+  # Empty podSelector = applies to all pods in namespace
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  # No ingress rules defined = deny all ingress
