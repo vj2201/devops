@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     git \
     vim \
     nano \
+    jq \
+    netcat \
     apt-transport-https \
     ca-certificates \
     gnupg \
@@ -102,6 +104,13 @@ COPY labs/ /root/labs/
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Copy scenario runner
+COPY scenario-runner.sh /usr/local/bin/scenario-runner
+RUN chmod +x /usr/local/bin/scenario-runner
+
+# Clone Killercoda scenarios from GitHub
+RUN git clone https://github.com/vj2201/killercoda-scenarios.git /root/killercoda-scenarios
 
 # Working directory
 WORKDIR /root
